@@ -266,6 +266,7 @@ static int hfi_process_sess_evt_seq_changed(u32 device_id,
 				data_ptr +=
 					sizeof(struct hfi_dpb_counts);
 				rem_size -= sizeof(struct hfi_dpb_counts);
+					sizeof(struct hfi_pic_struct);
 				break;
 			case HFI_PROPERTY_PARAM_VDEC_COLOUR_SPACE:
 				if (!validate_pkt_size(rem_size, sizeof(struct

@@ -7087,6 +7087,90 @@ void msm_comm_fetch_tags(struct msm_vidc_inst *inst,
 	mutex_unlock(&inst->buffer_tags.lock);
 }
 
+void msm_comm_free_buffer_tags(struct msm_vidc_inst *inst)
+{
+	struct vidc_tag_data *temp, *next;
+
+	if (!inst) {
+		dprintk(VIDC_ERR, "%s: invalid params %pK\n",
+				__func__, inst);
+		return;
+	}
+
+	mutex_lock(&inst->buffer_tags.lock);
+	list_for_each_entry_safe(temp, next, &inst->buffer_tags.list, list) {
+		list_del(&temp->list);
+		kfree(temp);
+	}
+	INIT_LIST_HEAD(&inst->buffer_tags.list);
+	mutex_unlock(&inst->buffer_tags.lock);
+}
+
+void msm_comm_store_tags(struct msm_vidc_inst *inst,
+	struct vidc_tag_data *tag_data)
+{
+
+	struct vidc_tag_data *temp, *next;
+	struct vidc_tag_data *pdata = NULL;
+	bool found = false;
+
+	if (!inst || !tag_data) {
+		dprintk(VIDC_ERR, "%s: invalid params %pK %pK\n",
+				__func__, inst, tag_data);
+		return;
+	}
+
+
+	mutex_lock(&inst->buffer_tags.lock);
+	list_for_each_entry_safe(temp, next, &inst->buffer_tags.list, list) {
+		if (temp->index == tag_data->index &&
+				temp->type == tag_data->type) {
+			temp->input_tag = tag_data->input_tag;
+			temp->output_tag = tag_data->output_tag;
+			found = true;
+			break;
+		}
+	}
+
+	if (!found) {
+		pdata = kzalloc(sizeof(*pdata), GFP_KERNEL);
+		if (!pdata)  {
+			dprintk(VIDC_WARN, "%s: malloc failure.\n", __func__);
+			goto exit;
+		}
+		pdata->input_tag = tag_data->input_tag;
+		pdata->output_tag = tag_data->output_tag;
+		pdata->index = tag_data->index;
+		pdata->type = tag_data->type;
+		list_add_tail(&pdata->list, &inst->buffer_tags.list);
+	}
+
+exit:
+	mutex_unlock(&inst->buffer_tags.lock);
+}
+
+void msm_comm_fetch_tags(struct msm_vidc_inst *inst,
+	struct vidc_tag_data *tag_data)
+{
+	struct vidc_tag_data *temp, *next;
+
+	if (!inst || !tag_data) {
+		dprintk(VIDC_ERR, "%s: invalid params %pK %pK\n",
+				__func__, inst, tag_data);
+		return;
+	}
+	mutex_lock(&inst->buffer_tags.lock);
+	list_for_each_entry_safe(temp, next, &inst->buffer_tags.list, list) {
+		if (temp->index == tag_data->index &&
+				temp->type == tag_data->type) {
+			tag_data->input_tag = temp->input_tag;
+			tag_data->output_tag = temp->output_tag;
+			break;
+		}
+	}
+	mutex_unlock(&inst->buffer_tags.lock);
+}
+
 void msm_comm_store_mark_data(struct msm_vidc_list *data_list,
 		u32 index, u32 mark_data, u32 mark_target)
 {
