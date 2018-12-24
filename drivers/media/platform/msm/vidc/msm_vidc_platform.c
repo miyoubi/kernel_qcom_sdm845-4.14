@@ -757,6 +757,10 @@ static struct msm_vidc_image_capability default_hevc_image_capability = {
 	{512, 512}, {512, 512}
 };
 
+static struct msm_vidc_ubwc_config trinket_ubwc_data[] = {
+	UBWC_CONFIG(0, 1, 0, 0, 0, 64, 0, 0),
+};
+
 static struct msm_vidc_platform_data default_data = {
 	.codec_data = default_codec_data,
 	.codec_data_length =  ARRAY_SIZE(default_codec_data),
