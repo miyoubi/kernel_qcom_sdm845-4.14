@@ -18,12 +18,16 @@
 #include "sde_hw_util.h"
 #include "sde_hw_mdss.h"
 
+
+#if defined(CONFIG_ARCH_SDM845)
+#define TARGET_HAS_TEAR_IRQS_IN_MDP
+#endif
+
 /**
  * Register offsets in MDSS register file for the interrupt registers
  * w.r.t. to the MDSS base
  */
 #define HW_INTR_STATUS			0x0010
-#define MDP_SSPP_TOP0_OFF		0x1000
 #define MDP_INTF_0_OFF			0x6B000
 #define MDP_INTF_1_OFF			0x6B800
 #define MDP_INTF_2_OFF			0x6C000
@@ -225,6 +229,19 @@ struct sde_irq_type {
 	u32 instance_idx;
 	u32 irq_mask;
 	int reg_idx;
+
+#ifndef TARGET_HAS_TEAR_IRQS_IN_MDP
+	{
+		MDP_INTF_TEAR_INTF_1_IRQ_OFF + MDP_INTF_TEAR_INTR_CLEAR_OFF,
+		MDP_INTF_TEAR_INTF_1_IRQ_OFF + MDP_INTF_TEAR_INTR_EN_OFF,
+		MDP_INTF_TEAR_INTF_1_IRQ_OFF + MDP_INTF_TEAR_INTR_STATUS_OFF,
+	},
+	{
+		MDP_INTF_TEAR_INTF_2_IRQ_OFF + MDP_INTF_TEAR_INTR_CLEAR_OFF,
+		MDP_INTF_TEAR_INTF_2_IRQ_OFF + MDP_INTF_TEAR_INTR_EN_OFF,
+		MDP_INTF_TEAR_INTF_2_IRQ_OFF + MDP_INTF_TEAR_INTR_STATUS_OFF,
+	}
+#endif
 };
 
 /**
