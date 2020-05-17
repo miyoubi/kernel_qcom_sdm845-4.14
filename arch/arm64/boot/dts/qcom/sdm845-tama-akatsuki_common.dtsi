@@ -344,6 +344,13 @@
 	linux,name = "wled";
 };
 
+&pmi8998_lsid1 {
+	qcom,leds-xboot@d800 {
+		/* Xboot splash */
+		somc,init-br-ua = <10000>;
+	};
+};
+
 &synaptics_clearpad {
 	status = "disabled";
 };
